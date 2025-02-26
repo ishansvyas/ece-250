@@ -1,0 +1,56 @@
+    # ALL DONE
+
+.text                               # code section
+        .align  2                   # align to 4 byte chunks
+
+        .globl  main
+main:   
+    # create stack frame
+    addi    $sp,    $sp,    -4      # allocate space for stack
+    sw      $ra,    0($sp)          # creating 4 bytes of space on the stack for everything your main function is doing
+
+    li      $t2,    1               # \
+    li      $t3,    1               #  > initialize first three tribonacci numbers
+    li      $t4,    2               # /
+
+    li      $v0,    4               # ask for input
+    la      $a0,    prompt
+    syscall 
+
+    li      $v0,    5               # \ reads integer input
+    syscall                         # /
+
+    li      $t0,    1               # functions as counter for loop.
+    move    $t1,    $v0             # *********** READ INPUT FROM USER! currently initialized as 4
+_loop:  
+    bgt     $t0,    $t1,    _end    # go to end if no more iterations
+
+    li      $v0,    1               # load immidiate - sets syscall to print integer
+    move    $a0,    $t2             # copy first tribonacci number to console
+    syscall                         # print
+
+    li      $v0,    4               # sets syscall to print character
+    la      $a0,    nln             # copy address of new line
+    syscall 
+
+    # increment
+    addi    $t0,    $t0,    1       # increment counter
+
+    add     $t5,    $t2,    $t3     # \ sum of tribonacci numbers stored at t5
+    add     $t5,    $t5,    $t4     # /
+
+    move    $t2,    $t3             # \
+    move    $t3,    $t4             #  > copy tribonacci numbers down
+    move    $t4,    $t5             # /
+
+    j       _loop                   # back to top of loop
+
+_end:   
+    lw      $ra,    0($sp)          # collapse that stack that you initialized before
+    addi    $sp,    $sp,    4
+    jr      $ra                     # similar to return 0 in C
+        .end    main
+
+.data                               # data section
+nln:    .asciiz "\n"
+prompt: .asciiz "Enter number:"
